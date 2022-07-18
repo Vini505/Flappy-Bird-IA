@@ -3,16 +3,16 @@ import os
 import random
 import neat
 
-aiJogando = True
+aiJogando = False
 geracao = 0
 
-telaLargura = 500
-telaAltura = 800
+TELA_LARGURA = 500
+TELA_ALTURA = 800
 
-imagemCano = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "pipe.png")))
-imagemChao = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "base.png")))
-imagemFundo = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bg.png")))
-imagemPassaro = [
+IMG_CANO = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "pipe.png")))
+IMG_CHAO = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "base.png")))
+IMG_FUNDO = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bg.png")))
+IMG_PASSARO = [
     pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird1.png"))),
     pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird2.png"))),
     pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird3.png")))
@@ -22,11 +22,11 @@ pygame.font.init()
 fontePontos = pygame.font.SysFont("arial", 40)
 
 class Passaro:
-    imgs = imagemPassaro
+    IMGS = IMG_PASSARO
 
-    rotacaomaxima = 25
-    velocidadeRotacao = 20
-    tempoAnimacao = 5
+    ROTACAO_MAX = 25
+    ROTACAO_VEL = 10
+    TEMPO_ANIMACAO = 5
 
     def __init__(self, x, y):
         self.x = x
@@ -36,7 +36,7 @@ class Passaro:
         self.altura = self.y
         self.tempo = 0
         self.contagemImagem = 0
-        self.imagem = self.imgs[0]
+        self.imagem = self.IMGS[0]
 
     def pular(self):
         self.velocidade = -10.5
@@ -54,37 +54,37 @@ class Passaro:
 
         self.y += deslocamento
 
-        if deslocamento < 0 or self.y < (self.altura + 50):
-            if self.angulo < self.rotacaomaxima:
-                self.angulo = self.rotacaomaxima
-            else:
-                if self.angulo > -90:
-                    self.angulo = self.velocidadeRotacao
+        if deslocamento < 0:
+            if self.angulo < self.ROTACAO_MAX:
+                self.angulo = self.ROTACAO_MAX
+        else:
+            if self.angulo > -70:
+                self.angulo -= self.ROTACAO_VEL
 
     def desenhar(self, tela):
 
         self.contagemImagem += 1
 
-        if self.contagemImagem < self.tempoAnimacao:
-            self.imagem = self.imgs[0]
-        elif self.contagemImagem < self.tempoAnimacao*2:
-            self.imagem = self.imgs[1]
-        elif self.contagemImagem < self.tempoAnimacao*3:
-            self.imagem = self.imgs[2 ]
-        elif self.contagemImagem < self.tempoAnimacao*4:
-            self.imagem = self.imgs[1]
-        elif self.contagemImagem >= self.tempoAnimacao*4 + 1:
-            self.imagem = self.imgs[0]
+        if self.contagemImagem < self.TEMPO_ANIMACAO:
+            self.imagem = self.IMGS[0]
+        elif self.contagemImagem < self.TEMPO_ANIMACAO*2:
+            self.imagem = self.IMGS[1]
+        elif self.contagemImagem < self.TEMPO_ANIMACAO*3:
+            self.imagem = self.IMGS[2 ]
+        elif self.contagemImagem < self.TEMPO_ANIMACAO*4:
+            self.imagem = self.IMGS[1]
+        elif self.contagemImagem >= self.TEMPO_ANIMACAO*4 + 1:
+            self.imagem = self.IMGS[0]
             self.contagemImagem = 0
 
-        if self.angulo <= -80:
-            self.imagem = self.imgs[1]
-            self.contagemImagem = self.tempoAnimacao*2
+        if self.angulo <= -70:
+            self.imagem = self.IMGS[1]
+            self.contagemImagem = self.TEMPO_ANIMACAO*2
 
         imagemRotacionada = pygame.transform.rotate(self.imagem, self.angulo)
-        posCentro = self.imagem.get_rect(topleft=(self.x, self.y)).center
-        retangulo = imagemRotacionada.get_rect(center = posCentro)
-        tela.blit(imagemRotacionada, retangulo.topleft)
+        novoAngulo = imagemRotacionada.get_rect(
+            center = self.imagem.get_rect(topleft=(self.x, self.y)).center)
+        tela.blit(imagemRotacionada, novoAngulo.topleft)
 
     def getMask(self):
         return pygame.mask.from_surface(self.imagem)
@@ -100,8 +100,8 @@ class Cano:
         self.altura = 0
         self.posTopo = 0
         self.posBase = 0
-        self.canoTopo = pygame.transform.flip(imagemCano, False, True)
-        self.canoBase = imagemCano
+        self.canoTopo = pygame.transform.flip(IMG_CANO, False, True)
+        self.canoBase = IMG_CANO
         self.passou = False
         self.definirAltura()
 
@@ -137,8 +137,8 @@ class Cano:
 
 class Chao:
     velocidade = 5
-    largura = imagemChao.get_width()
-    imagem = imagemChao
+    largura = IMG_CHAO.get_width()
+    imagem = IMG_CHAO
 
     def __init__(self, y):
         self.y = y
@@ -159,7 +159,7 @@ class Chao:
         tela.blit(self.imagem, (self.x2, self.y))
 
 def desenhaTela(tela, passaros, canos, chao, pontos):
-    tela.blit(imagemFundo, (0,0))
+    tela.blit(IMG_FUNDO, (0,0))
     for passaro in passaros:
         passaro.desenhar(tela)
 
@@ -167,7 +167,7 @@ def desenhaTela(tela, passaros, canos, chao, pontos):
         cano.desenhar(tela)
 
     texto = fontePontos.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
-    tela.blit(texto, (telaLargura - 10 - texto.get_width(), 10))
+    tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
 
     if aiJogando:
         texto = fontePontos.render(f"Geração: {geracao}", 1, (255, 255, 255))
@@ -198,7 +198,7 @@ def main(genomas, config):
 
     chao = Chao(730)
     canos = [Cano(700)]
-    tela = pygame.display.set_mode((telaLargura, telaAltura))
+    tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
     relogio = pygame.time.Clock()
 
