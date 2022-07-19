@@ -1,162 +1,16 @@
 import pygame
-import os
-import random
 import neat
 
-aiJogando = False
+from constantes import *
+from objetos.passaro import Passaro
+from objetos.cano import Cano
+from objetos.solo import Solo
+
+aiJogando = True
 geracao = 0
-
-TELA_LARGURA = 500
-TELA_ALTURA = 800
-
-IMG_CANO = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "pipe.png")))
-IMG_CHAO = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "base.png")))
-IMG_FUNDO = pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bg.png")))
-IMG_PASSARO = [
-    pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird1.png"))),
-    pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird2.png"))),
-    pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird3.png")))
-]
 
 pygame.font.init()
 fontePontos = pygame.font.SysFont("arial", 40)
-
-class Passaro:
-    IMGS = IMG_PASSARO
-
-    ROTACAO_MAX = 25
-    ROTACAO_VEL = 10
-    TEMPO_ANIMACAO = 5
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-        self.angulo = 0
-        self.velocidade = 0
-        self.altura = self.y
-        self.tempo = 0
-        self.contagemImagem = 0
-        self.imagem = self.IMGS[0]
-
-    def pular(self):
-        self.velocidade = -10.5
-        self.tempo = 0
-        self.altura = self.y
-
-    def mover(self):
-        self.tempo += 1
-        deslocamento = 1.5 * (self.tempo**2) + self.velocidade * self.tempo
-
-        if deslocamento > 16:
-            deslocamento = 16
-        elif deslocamento < 0:
-            deslocamento += -2
-
-        self.y += deslocamento
-
-        if deslocamento < 0:
-            if self.angulo < self.ROTACAO_MAX:
-                self.angulo = self.ROTACAO_MAX
-        else:
-            if self.angulo > -70:
-                self.angulo -= self.ROTACAO_VEL
-
-    def desenhar(self, tela):
-
-        self.contagemImagem += 1
-
-        if self.contagemImagem < self.TEMPO_ANIMACAO:
-            self.imagem = self.IMGS[0]
-        elif self.contagemImagem < self.TEMPO_ANIMACAO*2:
-            self.imagem = self.IMGS[1]
-        elif self.contagemImagem < self.TEMPO_ANIMACAO*3:
-            self.imagem = self.IMGS[2 ]
-        elif self.contagemImagem < self.TEMPO_ANIMACAO*4:
-            self.imagem = self.IMGS[1]
-        elif self.contagemImagem >= self.TEMPO_ANIMACAO*4 + 1:
-            self.imagem = self.IMGS[0]
-            self.contagemImagem = 0
-
-        if self.angulo <= -70:
-            self.imagem = self.IMGS[1]
-            self.contagemImagem = self.TEMPO_ANIMACAO*2
-
-        imagemRotacionada = pygame.transform.rotate(self.imagem, self.angulo)
-        novoAngulo = imagemRotacionada.get_rect(
-            center = self.imagem.get_rect(topleft=(self.x, self.y)).center)
-        tela.blit(imagemRotacionada, novoAngulo.topleft)
-
-    def getMask(self):
-        return pygame.mask.from_surface(self.imagem)
-
-
-
-class Cano:
-    distancia = 200
-    velocidade = 5
-
-    def __init__(self, x):
-        self.x = x
-        self.altura = 0
-        self.posTopo = 0
-        self.posBase = 0
-        self.canoTopo = pygame.transform.flip(IMG_CANO, False, True)
-        self.canoBase = IMG_CANO
-        self.passou = False
-        self.definirAltura()
-
-    def definirAltura(self):
-        self.altura = random.randrange(50, 450)
-        self.posTopo = self.altura - self.canoTopo.get_height()
-        self.posBase = self.altura + self.distancia
-
-    def mover(self):
-        self.x -= self.velocidade
-
-    def desenhar(self, tela):
-        tela.blit(self.canoTopo, (self.x, self.posTopo))
-        tela.blit(self.canoBase, (self.x, self.posBase))
-
-    def colidir(self, passaro):
-        passaroMask = passaro.getMask()
-        topoMask = pygame.mask.from_surface(self.canoTopo)
-        baseMask = pygame.mask.from_surface(self.canoBase)
-
-        distanciaTopo = (self.x - passaro.x, self.posTopo - round(passaro.y))
-        distanciaBase = (self.x - passaro.x, self.posBase - round(passaro.y))
-
-        basePonto = passaroMask.overlap(baseMask, distanciaBase)
-        topoPonto = passaroMask.overlap(topoMask, distanciaTopo)
-
-
-        if basePonto or topoPonto:
-            return True
-        else:
-            return False
-
-
-class Chao:
-    velocidade = 5
-    largura = IMG_CHAO.get_width()
-    imagem = IMG_CHAO
-
-    def __init__(self, y):
-        self.y = y
-        self.x1 = 0
-        self.x2 = self.largura
-
-    def mover(self):
-        self.x1 -= self.velocidade
-        self.x2 -= self.velocidade
-
-        if self.x1 + self.largura < 0:
-            self.x1 = self.x2 + self.largura
-        if self.x2 + self.largura < 0:
-            self.x2 = self.x1 + self.largura
-
-    def desenha(self, tela):
-        tela.blit(self.imagem, (self.x1, self.y))
-        tela.blit(self.imagem, (self.x2, self.y))
 
 def desenhaTela(tela, passaros, canos, chao, pontos):
     tela.blit(IMG_FUNDO, (0,0))
@@ -196,7 +50,7 @@ def main(genomas, config):
     else:
         passaros = [Passaro(230, 350)]
 
-    chao = Chao(730)
+    chao = Solo(730)
     canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
