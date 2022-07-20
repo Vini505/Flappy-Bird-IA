@@ -4,7 +4,7 @@ import random
 from constantes import *
 
 class Cano:
-    distancia = 200
+    distancia = 150
 
     def __init__(self, x):
         self.x = x
@@ -17,7 +17,7 @@ class Cano:
         self.definirAltura()
 
     def definirAltura(self):
-        self.altura = random.randrange(50, 450)
+        self.altura = random.randrange(50, 250)
         self.posTopo = self.altura - self.canoTopo.get_height()
         self.posBase = self.altura + self.distancia
 

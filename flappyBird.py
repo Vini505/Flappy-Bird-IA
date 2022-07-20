@@ -44,13 +44,13 @@ def main(genomas, config):
             redes.append(rede)
             genoma.fitness = 0
             listaGenomas.append(genoma)
-            passaros.append(Passaro(230, 350))
+            passaros.append(Passaro(230, 250))
 
 
     else:
-        passaros = [Passaro(230, 350)]
+        passaros = [Passaro(230, 250)]
 
-    solo = Solo(730)
+    solo = Solo(450)
     canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
@@ -127,6 +127,7 @@ def main(genomas, config):
                     redes.pop(i)
 
         desenhaTela(tela, passaros, canos, solo, pontos)
+        pygame.display.update()
 
 def rodar(caminhoConfig):
     config = neat.config.Config(neat.DefaultGenome

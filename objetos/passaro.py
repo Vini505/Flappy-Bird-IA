@@ -26,12 +26,13 @@ class Passaro:
 
     def mover(self):
         self.tempo += 1
+        print()
         deslocamento = 1.5 * (self.tempo**2) + self.velocidade * self.tempo
 
         if deslocamento > 16:
             deslocamento = 16
-        elif deslocamento < 0:
-            deslocamento += -2
+        # elif deslocamento < 0:
+        #     deslocamento += -2
 
         self.y += deslocamento
 
