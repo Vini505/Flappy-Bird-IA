@@ -50,7 +50,7 @@ def main(genomas, config):
     else:
         passaros = [Passaro(230, 350)]
 
-    chao = Solo(730)
+    solo = Solo(730)
     canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
@@ -91,7 +91,7 @@ def main(genomas, config):
                 if output[0] > 0.5:
                     passaro.pular()
 
-        chao.mover()
+        solo.mover()
 
         adicionarCano = False
         removerCanos = []
@@ -120,13 +120,13 @@ def main(genomas, config):
             canos.remove(cano)
 
         for i, passaro in enumerate(passaros):
-            if (passaro.y + passaro.imagem.get_height()) > chao.y or passaro.y < 0:
+            if (passaro.y + passaro.imagem.get_height()) > solo.y or passaro.y < 0:
                 passaros.pop(i)
                 if aiJogando:
                     listaGenomas.pop(i)
                     redes.pop(i)
 
-        desenhaTela(tela, passaros, canos, chao, pontos)
+        desenhaTela(tela, passaros, canos, solo, pontos)
 
 def rodar(caminhoConfig):
     config = neat.config.Config(neat.DefaultGenome

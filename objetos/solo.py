@@ -1,7 +1,6 @@
 from constantes import *
 
 class Solo:
-    velocidade = 5
     largura = IMG_CHAO.get_width()
     imagem = IMG_CHAO
 
@@ -11,8 +10,8 @@ class Solo:
         self.x2 = self.largura
 
     def mover(self):
-        self.x1 -= self.velocidade
-        self.x2 -= self.velocidade
+        self.x1 -= VELOCIDADE
+        self.x2 -= VELOCIDADE
 
         if self.x1 + self.largura < 0:
             self.x1 = self.x2 + self.largura

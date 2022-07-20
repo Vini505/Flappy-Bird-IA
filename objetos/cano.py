@@ -5,7 +5,6 @@ from constantes import *
 
 class Cano:
     distancia = 200
-    velocidade = 5
 
     def __init__(self, x):
         self.x = x
@@ -13,7 +12,7 @@ class Cano:
         self.posTopo = 0
         self.posBase = 0
         self.canoTopo = pygame.transform.flip(IMG_CANO, False, True)
-        self.canoBase = IMG_CANO
+        self.canoBase =IMG_CANO
         self.passou = False
         self.definirAltura()
 
@@ -23,7 +22,7 @@ class Cano:
         self.posBase = self.altura + self.distancia
 
     def mover(self):
-        self.x -= self.velocidade
+        self.x -= VELOCIDADE
 
     def desenhar(self, tela):
         tela.blit(self.canoTopo, (self.x, self.posTopo))

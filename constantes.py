@@ -12,3 +12,5 @@ IMG_PASSARO = [
     pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird2.png"))),
     pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird3.png")))
 ]
+
+VELOCIDADE = 5
