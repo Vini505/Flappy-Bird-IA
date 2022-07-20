@@ -12,13 +12,25 @@ geracao = 0
 pygame.font.init()
 fontePontos = pygame.font.SysFont("arial", 40)
 
-def desenhaTela(tela, passaros, canos, chao, pontos):
+def desenhaTela(tela, passaros, canos, solos, pontos):
+
     tela.blit(IMG_FUNDO, (0,0))
+
+    fundoPro = IMG_FUNDO.get_width()
+
+    while fundoPro<= TELA_LARGURA:
+        tela.blit(IMG_FUNDO, (fundoPro,0))
+
+        fundoPro += IMG_FUNDO.get_width()
+
     for passaro in passaros:
         passaro.desenhar(tela)
 
     for cano in canos:
         cano.desenhar(tela)
+
+    for solo in solos:
+        solo.desenhar(tela)
 
     texto = fontePontos.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
     tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
@@ -27,7 +39,6 @@ def desenhaTela(tela, passaros, canos, chao, pontos):
         texto = fontePontos.render(f"Geração: {geracao}", 1, (255, 255, 255))
         tela.blit(texto, (10, 10))
 
-    chao.desenha(tela)
     pygame.display.update()
 
 def main(genomas, config):
@@ -45,12 +56,10 @@ def main(genomas, config):
             genoma.fitness = 0
             listaGenomas.append(genoma)
             passaros.append(Passaro(230, 250))
-
-
     else:
         passaros = [Passaro(230, 250)]
 
-    solo = Solo(450)
+    solos = [Solo(0)]
     canos = [Cano(700)]
     tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
@@ -91,9 +100,19 @@ def main(genomas, config):
                 if output[0] > 0.5:
                     passaro.pular()
 
-        solo.mover()
 
-        adicionarCano = False
+        for solo in solos:
+
+            tamanho = len(solos)
+            while tamanho * solo.largura <= TELA_LARGURA:
+                solos.append(Solo(tamanho * solo.largura))
+                tamanho = len(solos)
+
+            solo.mover()
+
+            if solo.x + solo.largura < 0:
+                solos.remove(solo)
+
         removerCanos = []
         for cano in canos:
             for i, passaro in enumerate(passaros):
@@ -110,9 +129,12 @@ def main(genomas, config):
             if cano.x + cano.canoTopo.get_width() < 0:
                 removerCanos.append(cano)
 
-        if adicionarCano:
+
+        tamanho = len(canos)
+
+        if tamanho < 2:
             pontos += 1
-            canos.append(Cano(600))
+            canos.append(Cano(1200))
             if aiJogando:
                 for genoma in listaGenomas:
                     genoma.fitness += 5
@@ -126,7 +148,7 @@ def main(genomas, config):
                     listaGenomas.pop(i)
                     redes.pop(i)
 
-        desenhaTela(tela, passaros, canos, solo, pontos)
+        desenhaTela(tela, passaros, canos, solos, pontos)
         pygame.display.update()
 
 def rodar(caminhoConfig):

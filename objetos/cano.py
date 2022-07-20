@@ -22,7 +22,7 @@ class Cano:
         self.posBase = self.altura + self.distancia
 
     def mover(self):
-        self.x -= VELOCIDADE
+        self.x -= VELOCIDADE_BASE
 
     def desenhar(self, tela):
         tela.blit(self.canoTopo, (self.x, self.posTopo))
