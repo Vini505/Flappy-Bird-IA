@@ -7,9 +7,10 @@ class Passaro:
 
     ROTACAO_MAX = 25
     ROTACAO_VEL = 10
-    TEMPO_ANIMACAO = 5
+    TEMPO_ANIMACAO = 10
 
     def __init__(self, x, y):
+        # TODO adicionar variavel pontos e implementar
         self.x = x
         self.y = y
         self.angulo = 0
@@ -24,7 +25,7 @@ class Passaro:
         self.tempo = 0
         self.altura = self.y
 
-    def mover(self):
+    def cair(self):
         self.tempo += 1
         print()
         deslocamento = 1.5 * (self.tempo**2) + self.velocidade * self.tempo
@@ -45,6 +46,7 @@ class Passaro:
 
     def desenhar(self, tela):
 
+        # TODO melhorar
         self.contagemImagem += 1
 
         if self.contagemImagem < self.TEMPO_ANIMACAO:

@@ -16,6 +16,7 @@ def desenhaTela(tela, passaros, canos, solos, pontos):
 
     tela.blit(IMG_FUNDO, (0,0))
 
+    #TODO transformar o fundo em uma classe
     fundoPro = IMG_FUNDO.get_width()
 
     while fundoPro<= TELA_LARGURA:
@@ -42,6 +43,7 @@ def desenhaTela(tela, passaros, canos, solos, pontos):
     pygame.display.update()
 
 def main(genomas, config):
+    tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     global geracao
     geracao += 1
 
@@ -61,13 +63,12 @@ def main(genomas, config):
 
     solos = [Solo(0)]
     canos = [Cano(700)]
-    tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
     pontos = 0
     relogio = pygame.time.Clock()
 
     rodando = True
     while rodando:
-        relogio.tick(30)
+        relogio.tick(VELOCIDADE_JOGO)
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -88,9 +89,8 @@ def main(genomas, config):
         else:
             rodando = False
 
-
         for i, passaro in enumerate(passaros):
-            passaro.mover()
+            passaro.cair()
 
             if aiJogando:
 
@@ -100,18 +100,16 @@ def main(genomas, config):
                 if output[0] > 0.5:
                     passaro.pular()
 
-
         for solo in solos:
-
-            tamanho = len(solos)
-            while tamanho * solo.largura <= TELA_LARGURA:
-                solos.append(Solo(tamanho * solo.largura))
-                tamanho = len(solos)
+            # TODO quando solo é removido proximo solo buga, talvez usar uma lista
+            # provavelmente nao vai dar certo mas vai que
+            if solo.x + solo.largura < 0:
+                solos.remove(solo)
 
             solo.mover()
 
-            if solo.x + solo.largura < 0:
-                solos.remove(solo)
+        if solos[-1].x <= TELA_LARGURA:
+            solos.append(Solo(solos[-1].x + solo.largura))
 
         removerCanos = []
         for cano in canos:
@@ -124,20 +122,19 @@ def main(genomas, config):
                         redes.pop(i)
                 if not cano.passou and passaro.x > cano.x:
                     cano.passou = True
-                    adicionarCano = True
-            cano.mover()
+
             if cano.x + cano.canoTopo.get_width() < 0:
                 removerCanos.append(cano)
 
+            cano.mover()
 
         tamanho = len(canos)
-
-        if tamanho < 2:
-            pontos += 1
-            canos.append(Cano(1200))
-            if aiJogando:
-                for genoma in listaGenomas:
-                    genoma.fitness += 5
+        if canos[-1].x + canos[-1].distanciaX <= TELA_LARGURA:
+            # pontos += 1
+            canos.append(Cano(canos[-1].x + canos[-1].distanciaX))
+            # if aiJogando:
+            #     for genoma in listaGenomas:
+            #         genoma.fitness += 5
         for cano in removerCanos:
             canos.remove(cano)
 

@@ -13,4 +13,5 @@ IMG_PASSARO = [
     (pygame.image.load(os.path.join("imgs", "bird3.png")))
 ]
 
+VELOCIDADE_JOGO = 30
 VELOCIDADE_BASE = 5
