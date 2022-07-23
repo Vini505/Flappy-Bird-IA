@@ -2,9 +2,9 @@ import pygame
 import neat
 
 from constantes import *
-from objetos.passaro import Passaro
-from objetos.cano import Cano
-from objetos.solo import Solo
+from objetos import Passaro
+from objetos import Cano
+from objetos import Solo
 
 aiJogando = True
 geracao = 0
@@ -86,10 +86,7 @@ def main(genomas, config):
         if len(passaros) > 0:
             if len(canos) > 1 and passaros[0].x > (canos[0].x + canos[0].canoTopo.get_width()):
                 indiceCano = 1
-                # pontos += 1
-                # if aiJogando:
-                #     for genoma in listaGenomas:
-                #         genoma.fitness += 5
+
         else:
             rodando = False
 
@@ -124,6 +121,10 @@ def main(genomas, config):
                         redes.pop(i)
                 if not cano.passou and passaro.x > cano.x:
                     cano.passou = True
+                    pontos += 1
+                    if aiJogando:
+                        for genoma in listaGenomas:
+                            genoma.fitness += 5
 
             if cano.x + cano.canoTopo.get_width() < 0:
                 removerCanos.append(cano)
