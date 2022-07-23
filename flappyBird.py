@@ -86,6 +86,10 @@ def main(genomas, config):
         if len(passaros) > 0:
             if len(canos) > 1 and passaros[0].x > (canos[0].x + canos[0].canoTopo.get_width()):
                 indiceCano = 1
+                # pontos += 1
+                # if aiJogando:
+                #     for genoma in listaGenomas:
+                #         genoma.fitness += 5
         else:
             rodando = False
 
@@ -101,12 +105,10 @@ def main(genomas, config):
                     passaro.pular()
 
         for solo in solos:
-            # TODO quando solo é removido proximo solo buga, talvez usar uma lista
-            # provavelmente nao vai dar certo mas vai que
-            if solo.x + solo.largura < 0:
-                solos.remove(solo)
-
             solo.mover()
+
+        if solos[0].x + solos[0].largura < 0:
+                solos.pop(0)
 
         if solos[-1].x <= TELA_LARGURA:
             solos.append(Solo(solos[-1].x + solo.largura))
@@ -128,13 +130,9 @@ def main(genomas, config):
 
             cano.mover()
 
-        tamanho = len(canos)
         if canos[-1].x + canos[-1].distanciaX <= TELA_LARGURA:
-            # pontos += 1
             canos.append(Cano(canos[-1].x + canos[-1].distanciaX))
-            # if aiJogando:
-            #     for genoma in listaGenomas:
-            #         genoma.fitness += 5
+
         for cano in removerCanos:
             canos.remove(cano)
 
