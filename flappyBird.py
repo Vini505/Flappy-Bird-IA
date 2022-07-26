@@ -57,9 +57,9 @@ def main(genomas, config):
             redes.append(rede)
             genoma.fitness = 0
             listaGenomas.append(genoma)
-            passaros.append(Passaro(230, 250))
+            passaros.append(Passaro(200, 250))
     else:
-        passaros = [Passaro(230, 250)]
+        passaros = [Passaro(200, 250)]
 
     solos = [Solo(0)]
     canos = [Cano(700)]
@@ -94,9 +94,13 @@ def main(genomas, config):
             passaro.cair()
 
             if aiJogando:
-
+                # TODO passaro nao ta avancando
                 listaGenomas[i].fitness += 0.1
-                output = redes[i].activate((passaro.y, abs(passaro.y - canos[indiceCano].altura), abs(passaro.y - canos[indiceCano].posBase)))
+                teste = canos[indiceCano].altura + Cano.distanciaY/2
+                aa = canos[indiceCano]
+                output = redes[i].activate((passaro.y
+                                            , abs(passaro.y - (canos[indiceCano].altura + Cano.distanciaY/2))
+                                            , canos[indiceCano].velocidade))
 
                 if output[0] > 0.5:
                     passaro.pular()
@@ -141,6 +145,7 @@ def main(genomas, config):
             if (passaro.y + passaro.imagem.get_height()) > solo.y or passaro.y < 0:
                 passaros.pop(i)
                 if aiJogando:
+                    listaGenomas[i].fitness -= 10
                     listaGenomas.pop(i)
                     redes.pop(i)
 

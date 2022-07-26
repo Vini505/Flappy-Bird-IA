@@ -5,7 +5,7 @@ from constantes import *
 
 class Cano:
     distanciaY = 150
-    distanciaX = 200
+    distanciaX = 250
     canoTopo = pygame.transform.flip(IMG_CANO, False, True)
     canoBase =IMG_CANO
 
@@ -15,6 +15,8 @@ class Cano:
         self.posTopo = 0
         self.posBase = 0
         self.passou = False
+        self.direcao = random.choice([-1, 1])
+        self.velocidade = random.randrange(0, 8)
         self.definirAltura()
 
     def definirAltura(self):
@@ -24,6 +26,12 @@ class Cano:
 
     def mover(self):
         self.x -= VELOCIDADE_BASE
+        self.posTopo -= self.velocidade
+        self.posBase -= self.velocidade
+
+        if(self.posTopo + self.canoTopo.get_height() < 50 or
+           self.posTopo + self.canoTopo.get_height() > 250):
+            self.velocidade = self.velocidade * -1
 
     def desenhar(self, tela):
         tela.blit(self.canoTopo, (self.x, self.posTopo))
@@ -79,23 +87,20 @@ class Passaro:
         self.imagem = self.IMGS[0]
 
     def pular(self):
-        self.velocidade = -10.5
+        self.velocidade = -12
         self.tempo = 0
         self.altura = self.y
 
     def cair(self):
         self.tempo += 1
-        print()
-        deslocamento = 1.5 * (self.tempo**2) + self.velocidade * self.tempo
+        self.velocidade = self.velocidade + 1
 
-        if deslocamento > 16:
-            deslocamento = 16
-        elif deslocamento < 0:
-            deslocamento += -2
+        if self.velocidade > 16:
+            self.velocidade = 16
 
-        self.y += deslocamento
+        self.y += self.velocidade
 
-        if deslocamento < 0:
+        if self.velocidade < 0:
             if self.angulo < self.ROTACAO_MAX:
                 self.angulo = self.ROTACAO_MAX
         else:
