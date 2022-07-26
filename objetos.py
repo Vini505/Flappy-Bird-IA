@@ -54,19 +54,58 @@ class Cano:
         else:
             return False
 
-class Solo:
-    largura = IMG_SOLO.get_width()
-    imagem = IMG_SOLO
-    y = 450
-
-    def __init__(self, x):
+class Cenario:
+    def __init__(self, x, y, img, velocidade):
         self.x = x
+        self.y = y
+        self.imagem = img
+        self.velocidade = velocidade
 
     def mover(self):
-        self.x -= VELOCIDADE_BASE
+        self.x -= self.velocidade
 
     def desenhar(self, tela):
         tela.blit(self.imagem, (self.x, self.y))
+
+class Solo(Cenario):
+    imagem = IMG_SOLO
+    largura = imagem.get_width()
+    y = 450
+
+    def __init__(self, x):
+        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE)
+
+class Ceu(Cenario):
+    imagem = IMG_CEU
+    largura = imagem.get_width()
+    y = 0
+
+    def __init__(self, x):
+        super().__init__(x, self.y, self.imagem, 0)
+
+class Nuvem(Cenario):
+    imagem = IMG_NUVEM
+    largura = imagem.get_width()
+    y = 350
+
+    def __init__(self, x):
+        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE-4)
+
+class Predios(Cenario):
+    imagem = IMG_PREDIO
+    largura = imagem.get_width()
+    y = 375
+
+    def __init__(self, x):
+        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE-3)
+
+class Arvore(Cenario):
+    imagem = IMG_ARVORE
+    largura = imagem.get_width()
+    y = 400
+
+    def __init__(self, x):
+        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE-1)
 
 class Passaro:
     IMGS = IMG_PASSARO
