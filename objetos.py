@@ -7,7 +7,7 @@ class Cano:
     distanciaY = 150
     distanciaX = 250
     canoTopo = pygame.transform.flip(IMG_CANO, False, True)
-    canoBase =IMG_CANO
+    canoBase = IMG_CANO
 
     def __init__(self, x):
         self.x = x
@@ -16,7 +16,7 @@ class Cano:
         self.posBase = 0
         self.passou = False
         self.direcao = random.choice([-1, 1])
-        self.velocidade = random.randrange(0, 8)
+        self.velocidade = random.randrange(0, 7)
         self.definirAltura()
 
     def definirAltura(self):
@@ -59,6 +59,7 @@ class Cenario:
         self.x = x
         self.y = y
         self.imagem = img
+        self.largura = img.get_width()
         self.velocidade = velocidade
 
     def mover(self):
@@ -67,45 +68,19 @@ class Cenario:
     def desenhar(self, tela):
         tela.blit(self.imagem, (self.x, self.y))
 
-class Solo(Cenario):
+class Solo:
+    largura = IMG_SOLO.get_width()
     imagem = IMG_SOLO
-    largura = imagem.get_width()
     y = 450
 
     def __init__(self, x):
-        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE)
+        self.x = x
 
-class Ceu(Cenario):
-    imagem = IMG_CEU
-    largura = imagem.get_width()
-    y = 0
+    def mover(self):
+        self.x -= VELOCIDADE_BASE
 
-    def __init__(self, x):
-        super().__init__(x, self.y, self.imagem, 0)
-
-class Nuvem(Cenario):
-    imagem = IMG_NUVEM
-    largura = imagem.get_width()
-    y = 350
-
-    def __init__(self, x):
-        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE-4)
-
-class Predios(Cenario):
-    imagem = IMG_PREDIO
-    largura = imagem.get_width()
-    y = 375
-
-    def __init__(self, x):
-        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE-3)
-
-class Arvore(Cenario):
-    imagem = IMG_ARVORE
-    largura = imagem.get_width()
-    y = 400
-
-    def __init__(self, x):
-        super().__init__(x, self.y, self.imagem, VELOCIDADE_BASE-1)
+    def desenhar(self, tela):
+        tela.blit(self.imagem, (self.x, self.y))
 
 class Passaro:
     IMGS = IMG_PASSARO

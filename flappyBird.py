@@ -2,7 +2,7 @@ import pygame
 import neat
 
 from constantes import *
-from objetos import Arvore, Cano, Ceu, Nuvem, Passaro, Predios, Solo
+from objetos import Cano, Cenario, Passaro, Solo
 
 aiJogando = True
 geracao = 0
@@ -10,17 +10,20 @@ geracao = 0
 pygame.font.init()
 fontePontos = pygame.font.SysFont("arial", 40)
 
-def desenhaTela(tela, passaros, canos, cenarios, pontos):
+def desenhaTela(tela, passaros, canos, cenarios, solos, pontos):
 
-    for lista in cenarios:
+    for lista in cenarios.values():
         for obj in lista:
             obj.desenhar(tela)
 
-    for passaro in passaros:
-        passaro.desenhar(tela)
-
     for cano in canos:
         cano.desenhar(tela)
+
+    for solo in solos:
+        solo.desenhar(tela)
+
+    for passaro in passaros:
+        passaro.desenhar(tela)
 
     texto = fontePontos.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
     tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
@@ -51,14 +54,14 @@ def main(genomas, config):
         passaros = [Passaro(200, 250)]
 
 
-    cenarios = [
-        [Ceu(0)],
-        [Nuvem(0)],
-        [Predios(0)],
-        [Arvore(0)],
-        [Solo(0)]
-        ]
+    cenarios = {
+        "Ceu": [Cenario(0, 0, IMG_CEU, 0)]
+        , "Nuvens": [Cenario(0, 320, IMG_NUVEM, VELOCIDADE_BASE-4)]
+        , "Predios": [Cenario(0, 350, IMG_PREDIO, VELOCIDADE_BASE-3)]
+        , "Arvores": [Cenario(0, 380, IMG_ARVORE, VELOCIDADE_BASE-2)]
+        }
 
+    solos = [Solo(0)]
     canos = [Cano(700)]
 
     pontos = 0
@@ -94,10 +97,16 @@ def main(genomas, config):
             if aiJogando:
                 # TODO passaro nao ta avancando
                 listaGenomas[i].fitness += 0.1
+
                 output = redes[i].activate((passaro.y
-                                            , abs(passaro.y - canos[indiceCano].altura)
-                                            , abs(passaro.y - canos[indiceCano].posBase)
+                                            , (passaro.x - canos[indiceCano].x)
+                                            , (passaro.y - canos[indiceCano].posBase)
                                             , canos[indiceCano].velocidade))
+
+                # output = redes[i].activate((passaro.y
+                #                             , (passaro.y - canos[indiceCano].altura)
+                #                             , (passaro.y - canos[indiceCano].posBase)
+                #                             , canos[indiceCano].velocidade))
 
                 # output = redes[i].activate((passaro.y
                 #                             , abs(passaro.y - (canos[indiceCano].altura + Cano.distanciaY/2))
@@ -106,17 +115,25 @@ def main(genomas, config):
                 if output[0] > 0.5:
                     passaro.pular()
 
-        for lista in cenarios:
+        for lista in cenarios.values():
 
             for obj in lista:
-                tipo = type(obj)
                 obj.mover()
 
             if lista[0].x + lista[0].largura < 0:
-                    lista.pop(0)
+                lista.pop(0)
 
             if lista[-1].x <= TELA_LARGURA:
-                lista.append(tipo(lista[-1].x + tipo.largura))
+                lista.append(Cenario(lista[-1].x + lista[-1].largura, lista[-1].y, lista[-1].imagem, lista[-1].velocidade))
+
+        for solo in solos:
+            solo.mover()
+
+        if solos[0].x + solos[0].largura < 0:
+                solos.pop(0)
+
+        if solos[-1].x <= TELA_LARGURA:
+            solos.append(Solo(solos[-1].x + solo.largura))
 
         removerCanos = []
         for cano in canos:
@@ -127,7 +144,7 @@ def main(genomas, config):
                         listaGenomas[i].fitness -= 1
                         listaGenomas.pop(i)
                         redes.pop(i)
-                if not cano.passou and passaro.x > cano.x:
+                if not cano.passou and passaro.x > cano.x + (cano.canoTopo.get_width()):
                     cano.passou = True
                     pontos += 1
                     if aiJogando:
@@ -153,7 +170,7 @@ def main(genomas, config):
                     listaGenomas.pop(i)
                     redes.pop(i)
 
-        desenhaTela(tela, passaros, canos, cenarios, pontos)
+        desenhaTela(tela, passaros, canos, cenarios, solos, pontos)
         pygame.display.update()
 
 def rodar(caminhoConfig):
