@@ -7,6 +7,9 @@ from objetos import Cano, Cenario, Passaro, Solo
 aiJogando = True
 geracao = 0
 
+pause = True
+rodando = False
+
 pygame.font.init()
 fontePontos = pygame.font.SysFont("arial", 40)
 
@@ -39,6 +42,9 @@ def main(genomas, config):
     global geracao
     geracao += 1
 
+    global pause
+    rodando = True
+
     if aiJogando:
         redes = []
         listaGenomas = []
@@ -49,9 +55,9 @@ def main(genomas, config):
             redes.append(rede)
             genoma.fitness = 0
             listaGenomas.append(genoma)
-            passaros.append(Passaro(200, 250))
+            passaros.append(Passaro(300, 250))
     else:
-        passaros = [Passaro(200, 250)]
+        passaros = [Passaro(300, 250)]
 
 
     cenarios = {
@@ -62,12 +68,49 @@ def main(genomas, config):
         }
 
     solos = [Solo(0)]
-    canos = [Cano(700)]
+    canos = [Cano(TELA_LARGURA)]
 
     pontos = 0
     relogio = pygame.time.Clock()
 
-    rodando = True
+    while pause:
+        relogio.tick(VELOCIDADE_JOGO)
+
+        for evento in pygame.event.get():
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_SPACE:
+                    pause = False
+                    rodando = True
+
+        for lista in cenarios.values():
+
+            for obj in lista:
+                obj.mover()
+
+            if lista[0].x + lista[0].largura < 0:
+                lista.pop(0)
+
+            if lista[-1].x <= TELA_LARGURA:
+                lista.append(Cenario(lista[-1].x + lista[-1].largura, lista[-1].y, lista[-1].imagem, lista[-1].velocidade))
+
+        for passaro in passaros:
+            passaro.pause()
+
+        for solo in solos:
+            solo.mover()
+
+        if solos[0].x + solos[0].largura < 0:
+                solos.pop(0)
+
+        if solos[-1].x <= TELA_LARGURA:
+            solos.append(Solo(solos[-1].x + solo.largura))
+
+        desenhaTela(tela, passaros, canos, cenarios, solos, pontos)
+        pygame.display.update()
+
+
+
+
     while rodando:
         relogio.tick(VELOCIDADE_JOGO)
 
@@ -95,22 +138,12 @@ def main(genomas, config):
             passaro.cair()
 
             if aiJogando:
-                # TODO passaro nao ta avancando
                 listaGenomas[i].fitness += 0.1
 
                 output = redes[i].activate((passaro.y
                                             , (passaro.x - canos[indiceCano].x)
                                             , (passaro.y - canos[indiceCano].posBase)
                                             , canos[indiceCano].velocidade))
-
-                # output = redes[i].activate((passaro.y
-                #                             , (passaro.y - canos[indiceCano].altura)
-                #                             , (passaro.y - canos[indiceCano].posBase)
-                #                             , canos[indiceCano].velocidade))
-
-                # output = redes[i].activate((passaro.y
-                #                             , abs(passaro.y - (canos[indiceCano].altura + Cano.distanciaY/2))
-                #                             , canos[indiceCano].velocidade))
 
                 if output[0] > 0.5:
                     passaro.pular()

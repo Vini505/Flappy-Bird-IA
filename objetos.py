@@ -16,7 +16,7 @@ class Cano:
         self.posBase = 0
         self.passou = False
         self.direcao = random.choice([-1, 1])
-        self.velocidade = random.randrange(0, 7)
+        self.velocidade = random.randrange(6, 7)
         self.definirAltura()
 
     def definirAltura(self):
@@ -99,6 +99,8 @@ class Passaro:
         self.tempo = 0
         self.contagemImagem = 0
         self.imagem = self.IMGS[0]
+        self.parado = (y+10, y-10)
+        self.paradoVelocida = 1
 
     def pular(self):
         self.velocidade = -12
@@ -146,6 +148,13 @@ class Passaro:
         novoAngulo = imagemRotacionada.get_rect(
             center = self.imagem.get_rect(topleft=(self.x, self.y)).center)
         tela.blit(imagemRotacionada, novoAngulo.topleft)
+
+    def pause(self):
+        self.y += self.paradoVelocida
+
+        if(self.y < self.parado[1] or
+           self.y > self.parado[0]):
+            self.paradoVelocida = self.paradoVelocida * -1
 
     def getMask(self):
         return pygame.mask.from_surface(self.imagem)
