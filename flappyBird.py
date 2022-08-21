@@ -1,14 +1,13 @@
 import pygame
 import neat
-
+from resources import populacao
 from constantes import *
 from objetos import Cano, Cenario, Passaro, Solo
 
+
 aiJogando = True
 geracao = 0
-
 pause = True
-rodando = False
 
 pygame.font.init()
 fontePontos = pygame.font.SysFont("arial", 40)
@@ -28,22 +27,17 @@ def desenhaTela(tela, passaros, canos, cenarios, solos, pontos):
     for passaro in passaros:
         passaro.desenhar(tela)
 
-    texto = fontePontos.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
-    tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
+    if pause == False:
+        texto = fontePontos.render(f"Pontuação: {pontos}", 1, (255, 255, 255))
+        tela.blit(texto, (TELA_LARGURA - 10 - texto.get_width(), 10))
 
-    if aiJogando:
+    if aiJogando and pause == False:
         texto = fontePontos.render(f"Geração: {geracao}", 1, (255, 255, 255))
         tela.blit(texto, (10, 10))
 
     pygame.display.update()
 
-def main(genomas, config):
-    tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
-    global geracao
-    geracao += 1
-
-    global pause
-    rodando = True
+def gerarObjetos(genomas, config):
 
     if aiJogando:
         redes = []
@@ -69,46 +63,58 @@ def main(genomas, config):
 
     solos = [Solo(0)]
     canos = [Cano(TELA_LARGURA)]
+    
+    return(cenarios, passaros, solos, canos, listaGenomas, redes)
 
+def telaPause(relogio, cenarios, passaros, solos, pause):
+    relogio.tick(VELOCIDADE_JOGO)
+
+    for evento in pygame.event.get():
+        if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+                pause = False
+
+    for lista in cenarios.values():
+
+        for obj in lista:
+            obj.mover()
+
+        if lista[0].x + lista[0].largura < 0:
+            lista.pop(0)
+
+        if lista[-1].x <= TELA_LARGURA:
+            lista.append(Cenario(lista[-1].x + lista[-1].largura, lista[-1].y, lista[-1].imagem, lista[-1].velocidade))
+
+    for passaro in passaros:
+        passaro.pause()
+
+    for solo in solos:
+        solo.mover()
+
+    if solos[0].x + solos[0].largura < 0:
+            solos.pop(0)
+
+    if solos[-1].x <= TELA_LARGURA:
+        solos.append(Solo(solos[-1].x + solo.largura))
+
+    return(pause)
+
+def main(genomas, config, variaveis):
+    global geracao
+    global pause
+    rodando = True
+    
+    tela = pygame.display.set_mode((TELA_LARGURA, TELA_ALTURA))
+    
     pontos = 0
     relogio = pygame.time.Clock()
 
+    cenarios, passaros, solos, canos, listaGenomas, redes = gerarObjetos(genomas, config)
+
     while pause:
-        relogio.tick(VELOCIDADE_JOGO)
-
-        for evento in pygame.event.get():
-            if evento.type == pygame.KEYDOWN:
-                if evento.key == pygame.K_SPACE:
-                    pause = False
-                    rodando = True
-
-        for lista in cenarios.values():
-
-            for obj in lista:
-                obj.mover()
-
-            if lista[0].x + lista[0].largura < 0:
-                lista.pop(0)
-
-            if lista[-1].x <= TELA_LARGURA:
-                lista.append(Cenario(lista[-1].x + lista[-1].largura, lista[-1].y, lista[-1].imagem, lista[-1].velocidade))
-
-        for passaro in passaros:
-            passaro.pause()
-
-        for solo in solos:
-            solo.mover()
-
-        if solos[0].x + solos[0].largura < 0:
-                solos.pop(0)
-
-        if solos[-1].x <= TELA_LARGURA:
-            solos.append(Solo(solos[-1].x + solo.largura))
+        pause = telaPause(relogio, cenarios, passaros, solos, pause)
 
         desenhaTela(tela, passaros, canos, cenarios, solos, pontos)
         pygame.display.update()
-
-
 
 
     while rodando:
@@ -212,14 +218,16 @@ def rodar(caminhoConfig):
                                 , neat.DefaultSpeciesSet
                                 , neat.DefaultStagnation
                                 , caminhoConfig)
-    populacao = neat.Population(config)
-    populacao.add_reporter((neat.StdOutReporter(True)))
-    populacao.add_reporter(neat.StatisticsReporter())
+    populacoes = populacao.Populacao(config)
+    populacoes.add_reporter((neat.StdOutReporter(True)))
+    populacoes.add_reporter(neat.StatisticsReporter())
+
+    variaveis = populacoes.generation
 
     if aiJogando:
-        populacao.run(main)
+        populacoes.run(main, variaveis)
     else:
-        main(None, None)
+        main(None, None, None)
 
 if __name__ =="__main__":
     caminhoConfig = "config.txt"
